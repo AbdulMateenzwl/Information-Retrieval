@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Presentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e8f0ff, #d3eaff);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .slide {
+            display: none;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-in-out;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .slide.visible {
+            display: block;
+        }
+
+        .slide h2 {
+            font-size: 1.8rem;
+            color: #0056b3;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .slide ul {
+            padding-left: 20px;
+            list-style-type: disc;
+        }
+
+        .slide ul li {
+            font-size: 1.2rem;
+            margin: 10px 0;
+            line-height: 1.5;
+            color: #555;
+        }
+
+        .slide:hover {
+            cursor: pointer;
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="slides-container"></div>
+
+    <script>
+        // Fetch slides data from the Django API
+        fetch('/api/get-presentation/')
+            .then(response => response.json())
+            .then(data => {
+                const slidesContainer = document.getElementById('slides-container');
+                const slides = data.slides;
+
+                slides.forEach((slide, index) => {
+                    const slideDiv = document.createElement('div');
+                    slideDiv.classList.add('slide');
+                    if (index === 0) slideDiv.classList.add('visible'); // Ensure the first slide is visible
+
+                    const title = document.createElement('h2');
+                    title.textContent = slide.title;
+
+                    const contentList = document.createElement('ul');
+                    slide.content.forEach(item => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = item;
+                        contentList.appendChild(listItem);
+                    });
+
+                    slideDiv.appendChild(title);
+                    slideDiv.appendChild(contentList);
+
+                    // Add click event to navigate to the next slide
+                    slideDiv.addEventListener('click', () => {
+                        slideDiv.classList.remove('visible'); // Hide the current slide
+                        if (index + 1 < slides.length) {
+                            slidesContainer.children[index + 1].classList.add('visible'); // Show the next slide
+                        }
+                    });
+
+                    slidesContainer.appendChild(slideDiv);
+                });
+            })
+            .catch(error => console.error('Error fetching slides:', error));
+    </script>
+</body>
+</html>

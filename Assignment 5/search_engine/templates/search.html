@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Engine</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+        h1 {
+            color: #343a40;
+            text-align: center;
+            margin-top: 20px;
+        }
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        input, select, button {
+            margin-top: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        hr {
+            margin-top: 30px;
+            margin-bottom: 30px;
+            border: 1px solid #dee2e6;
+        }
+        .results {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .results ul {
+            padding-left: 20px;
+        }
+        .results ul li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Search Engine</h1>
+        <form method="POST" class="mt-4">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="query" class="form-label">Query:</label>
+                <input type="text" id="query" name="query" class="form-control" placeholder="Enter your search query" required>
+            </div>
+            <div class="mb-3">
+                <label for="model" class="form-label">Select Model:</label>
+                <select id="model" name="model" class="form-select">
+                    <option value="boolean">Boolean Extended Model</option>
+                    <option value="fuzzy">Fuzzy Model</option>
+                    <option value="vector" selected>Generalized Vector Model</option>
+                    <option value="lsi">Latent Semantic Indexing (LSI)</option>
+                </select>
+            </div>
+            <div class="mb-3" id="fuzzy-threshold-group" style="display: none;">
+                <label for="threshold" class="form-label">Fuzzy Threshold:</label>
+                <input type="number" id="threshold" name="threshold" class="form-control" min="0" max="1" step="0.1" placeholder="Enter a value between 0 and 1">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Search</button>
+        </form>
+        <hr>
+        <div class="results mt-4">
+            <h2>Results:</h2>
+            <ul>
+                {% if results is iterable %}
+                    {% for result in results %}
+                        <li>{{ result }}</li>
+                    {% endfor %}
+                {% else %}
+                    <p>{{ results }}</p>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Show/Hide the fuzzy threshold input based on the selected model
+        const modelSelect = document.getElementById("model");
+        const fuzzyThresholdGroup = document.getElementById("fuzzy-threshold-group");
+
+        modelSelect.addEventListener("change", () => {
+            if (modelSelect.value === "fuzzy") {
+                fuzzyThresholdGroup.style.display = "block";
+            } else {
+                fuzzyThresholdGroup.style.display = "none";
+            }
+        });
+    </script>
+    <hr>
+    <form id="uploadForm" class="mt-4" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="file" class="form-label">Upload File:</label>
+            <input type="file" name="file" id="file" class="form-control" accept=".txt" required>
+        </div>
+        <button type="submit" class="btn btn-success w-100">Upload File</button>
+    </form>
+    <div id="uploadMessage" class="mt-3 text-center"></div>
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const uploadMessage = document.getElementById('uploadMessage');
+        uploadForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(uploadForm);
+            const response = await fetch('/upload/', { method: 'POST', body: formData });
+            const data = await response.json();
+            uploadMessage.textContent = data.message;
+            uploadMessage.className = data.success ? 'text-success' : 'text-danger';
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
