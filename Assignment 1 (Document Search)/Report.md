@@ -1,6 +1,5 @@
 # DOCUMENT SEARCH ENGINE
 
-(TF-IDF)
 
 ## Session: 2021 – 2025
 
@@ -319,10 +318,10 @@ This DFD depicts a system designed for managing and retrieving documents. It ill
 **Data Flows**
 
 * **Select File:** User selects a file for upload.
+* **Store Document:** Uploaded document is stored in the Document Directory.
 * **Parameters:** User provides parameters (search query) to the search process.
 * **Search Query:** Search query is passed to the search process.
 * **Response:** Search results are displayed to the user.
-* **Store Document:** Uploaded document is stored in the Document Directory.
 
 **Functionality**
 

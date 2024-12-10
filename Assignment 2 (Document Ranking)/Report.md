@@ -237,13 +237,11 @@ Files:
 ```
 file1.txt: "apple banana apple"
 file2.txt: "banana orange"
-
 ```
 
 TF:
 
 ```python
-Copy code
 file1.txt: {'apple': 0.67, 'banana': 0.33}
 file2.txt: {'banana': 0.5, 'orange': 0.5}
 ```
@@ -251,14 +249,12 @@ file2.txt: {'banana': 0.5, 'orange': 0.5}
 Inverted Index:
 
 ```python
-Copy code
 {'apple': ['file1.txt'], 'banana': ['file1.txt', 'file2.txt'], 'orange': ['file2.txt']} 
 ```
 
 IDF Values:
 
 ```python
-Copy code
 {'apple': log(1.5), 'banana': log(1.5), 'orange': log(1.5)}
 ```
 
@@ -275,19 +271,19 @@ This DFD depicts a system designed for managing and retrieving documents. It ill
 
 * **User:** Represents the end-user who interacts with the system.
 * **Upload Document:** Process responsible for receiving documents from the user and storing them in the Document Directory.
+* **Save Document:** Process that saves the document in the Document Directory.
 * **Document Directory:** Storage location for uploaded documents.
 * **Search By Title/Content:** Process that takes user-provided parameters (search query) and searches the Document Directory for matching documents.
-* **Save Document:** Process that saves the document in the Document Directory.
 * **Search using Keyword Matching TF-IDF:** Process that employs the TF-IDF technique to rank matching documents based on the search query.
 * **Display Results:** Process that displays search results to the user.
 
 **Data Flows**
 
 * **Select File:** User selects a file for upload.
+* **Store Document:** Uploaded document is stored in the Document Directory.
 * **Parameters:** User provides parameters (search query) to the search process.
 * **Search Query:** Search query is passed to the search process.
 * **Response:** Search results are displayed to the user.
-* **Store Document:** Uploaded document is stored in the Document Directory.
 
 **Functionality**
 

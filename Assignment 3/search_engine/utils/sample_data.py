@@ -8,21 +8,25 @@ DOCUMENTS = {
 
 # Enhanced graph where each word and its related words are bidirectional
 RELATED_WORDS_GRAPH = {
-    "NASA": ["space", "exploration", "missions", "astronauts","NASA"],
-    "space": ["NASA", "missions", "exploration", "astronauts","space"],
-    "exploration": ["space", "NASA", "missions", "astronauts","exploration"],
-    "missions": ["NASA", "space", "exploration", "astronauts","missions"],
-    "astronauts": ["NASA", "space", "exploration", "missions","astronauts"],
+    # Blog-related words
+    "blog": ["website", "diary", "entries", "posts", "blog"],
+    "website": ["blog", "diary", "entries", "posts", "website"],
+    "diary": ["blog", "website", "entries", "posts", "diary"],
+    "entries": ["blog", "website", "diary", "posts", "entries"],
+    "posts": ["blog", "website", "diary", "entries", "posts"],
     
-    "machine learning": ["AI", "models", "data", "training","machine learning"],
-    "AI": ["machine learning", "models", "data", "training","AI"],
-    "models": ["machine learning", "AI", "data", "training","models"],
-    "data": ["machine learning", "AI", "models", "training","data"],
-    "training": ["machine learning", "AI", "models", "data","training"],
+    # Exams-related words
+    "exams": ["papers", "students", "results", "information", "exams"],
+    "papers": ["exams", "students", "results", "information", "papers"],
+    "students": ["exams", "papers", "results", "information", "students"],
+    "results": ["exams", "papers", "students", "information", "results"],
+    "information": ["exams", "papers", "students", "results", "information"],
     
-    "data visualization": ["charts", "graphs", "datasets", "visual","data visualization"],
-    "charts": ["data visualization", "graphs", "datasets", "visual","charts"],
-    "graphs": ["data visualization", "charts", "datasets", "visual","graphs"],
-    "datasets": ["data visualization", "charts", "graphs", "visual","datasets"],
-    "visual": ["data visualization", "charts", "graphs", "datasets","visual"]
+    # Flash ROM-related words
+    "flash": ["ROM", "device", "product", "data", "flash"],
+    "ROM": ["flash", "device", "product", "data", "ROM"],
+    "device": ["flash", "ROM", "product", "data", "device"],
+    "product": ["flash", "ROM", "device", "data", "product"],
+    "data": ["flash", "ROM", "device", "product", "data"],
 }
+

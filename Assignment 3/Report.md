@@ -38,7 +38,7 @@ The Document Search Engine is a Django-based application built using Python. It 
 - **Django**: A web framework for Python to build web applications.
 - **HTML/CSS**: For frontend to create the user interface.
 - **JavaScript**: For handling dynamic interactions (e.g., PDF viewer integration).
-- **Math**: For computing TF-IDF, cosine similarity, and other mathematical operations.
+- **Math**: For computing, cosine similarity, and other mathematical operations.
 
 ---
 
@@ -501,10 +501,10 @@ This DFD depicts a system designed for managing and retrieving documents. It ill
 **Data Flows**
 
 * **Select File:** User selects a file for upload.
+* **Store Document:** Uploaded document is stored in the Document Directory.
 * **Parameters:** User provides parameters (search query) to the search process.
 * **Search Query:** Search query is passed to the search process.
 * **Response:** Search results are displayed to the user.
-* **Store Document:** Uploaded document is stored in the Document Directory.
 
 **Functionality**
 

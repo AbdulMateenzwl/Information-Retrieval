@@ -1,2 +1,2 @@
-flash the Rom on connected device it needs to know which Run/Device/Product you want to flash as there might be many products available in out/target/product directory, And so product is obtained by ANDROID_PRODUCT_OUT variable which should point to any product i.e.
+flash the Rom on connected device it needs to know which are you want to flash as there might be many products available in data directory, And so product is obtained by ANDROID_PRODUCT_OUT variable which should point to any product i.e.
 

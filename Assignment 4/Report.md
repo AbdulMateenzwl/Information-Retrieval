@@ -20,17 +20,17 @@ Lahore, Pakistan
 
 ---
 
-# Document Search Engine  
+# Hypertext and Structure Guided Model  
 
 ## Introduction  
 
-This document provides a comprehensive explanation of the Document Search Engine, including its architecture, data flow, and modular code representation. The system allows users to upload documents, index their content, and perform efficient searches using various retrieval models. Results are presented with matching filenames and content snippets, ranked by relevance.  
+This document provides a detailed explanation of the Hypertext and Structure Guided Model, its architecture, data flow, and modular implementation. The system facilitates hypertext-based search functionality, enabling users to query structured content and retrieve contextually relevant results based on hypertext and semantic relationships.  
 
 ---
 
 ## Overview  
 
-The Document Search Engine is a Django-based application built using Python. It enables users to upload and process documents, apply advanced search algorithms, and retrieve results ranked by relevance. The engine incorporates three primary models for search: the Binary Independence Model, Non-Overlapped Lists, and Proximal Nodes.  
+The Hypertext and Structure Guided Model is a Python-based application designed for querying and exploring structured documents with hypertext links. It leverages the relationships between nodes (documents, terms, or sections) to guide the search process, providing a context-aware retrieval experience. The system uses advanced algorithms to rank search results based on their relevance, hypertext connections, and structural properties.
 
 
 ## Tech Stack
@@ -38,11 +38,10 @@ The Document Search Engine is a Django-based application built using Python. It 
 - **Django**: A web framework for Python to build web applications.
 - **HTML/CSS**: For frontend to create the user interface.
 - **JavaScript**: For handling dynamic interactions (e.g., PDF viewer integration).
-- **Math**: For computing TF-IDF, cosine similarity, and other mathematical operations.
 
 ---
 
-# Installation Guide
+## Installation Guide
 
 Follow these steps to set up the project from scratch.
 
@@ -51,7 +50,7 @@ Follow these steps to set up the project from scratch.
 ```
 git clone https://github.com/abdulmateenzwl/Information-Retrieval.git
 cd Information-Retrieval
-cd "Assignment 3"
+cd "Assignment 4"
 ```
 
 ### Create a Virtual Environment
@@ -64,14 +63,14 @@ python3 -m venv venv
 
 Activate the virtual environment:
 
-```
+```bash
 venv\Scripts\activate
 ```
 
 Install Required Dependencies
 Install all necessary Python libraries using pip. You can use the requirements.txt file to install the dependencies:
 
-```
+```bash
 pip install -r requirements.txt
 ```
 
@@ -94,7 +93,8 @@ project_root/
 ├── templates/                    # HTML templates
 │   ├── base.html                 # Base template for layout inheritance
 │   └── search_engine/
-│       └── search.html
+│       └── slides.html
+│       └── hypertext.html
 │
 ├── media/                        # Media files (user uploads)
 │
@@ -116,7 +116,7 @@ project_root/
 │   │       └── js/
 │   ├── templates/                # App-specific templates
 │   │   └── search_engine/
-│   │       └── example.html
+│   │       └── slides.html
 │   ├── __init__.py
 │   ├── admin.py                  # Admin site configuration
 │   ├── apps.py                   # App configuration
@@ -144,100 +144,64 @@ The app will be accessible at http://localhost:8000/.
 
 ### Core Features  
 
-#### **File Uploading**  
+#### **Hypertext Graph Construction**  
 
-- Users can upload `.txt` files, which are saved in the `documents/` directory.  
-- Uploaded files are immediately processed, and their content is stored in a dictionary for efficient indexing and retrieval.  
-
-#### **Document Indexing**  
-
-- The app preprocesses documents to normalize content by converting text to lowercase, removing duplicates, and splitting it into individual terms.  
-- Documents are indexed using advanced models like the **Binary Independence Model**, **Non-Overlapped List Model**, and **Proximal Nodes Retrieval** to enable specialized search functionality.  
+- Documents are represented as nodes, and hypertext links between them are represented as edges.  
+- Nodes store content and metadata, while edges capture semantic relationships.  
 
 ---
-
 ## Search Models  
 
-The Document Search Engine incorporates three distinct search models to offer flexibility and accuracy in content retrieval:  
+The system integrates two main models for searching hypertext documents:  
 
-### **1. Binary Independence Model (BIM)**  
-The Binary Independence Model calculates the relevance of a document based on its overlap with the search query.  
+### **1. Hypertext-Based Search**  
+
+This model prioritizes documents based on their hypertext connectivity.  
 
 **Key Features:**  
-- Preprocesses the query and documents to remove case sensitivity and normalize content.  
-- Scores documents based on the count of matching terms between the query and document.  
-- Filters out documents with minimal matching terms to ensure relevance.  
+- Represents documents and terms as nodes in a graph.  
+- Uses graph traversal techniques to identify relevant documents.  
+- Considers the importance of nodes based on in-degree, out-degree, and PageRank.  
 
 **Implementation Workflow:**  
-1. Tokenize and preprocess all documents and the query.  
-2. Calculate the number of query terms that overlap with each document.  
-3. Rank the documents based on their overlap scores, discarding documents with a score of zero.  
+1. Parse documents to construct a hypertext graph.  
+2. Use a query to identify starting nodes and traverse the graph.  
+3. Rank documents based on connectivity metrics like PageRank.  
 
 ---
 
-### **2. Non-Overlapped List Model**  
-This model retrieves documents based on individual query terms and organizes them into separate non-overlapping lists for each term.  
+### **2. Structure Guided Model**  
+
+This model considers the structural properties of documents, such as section hierarchy and term proximity.  
 
 **Key Features:**  
-- Splits the search query into individual terms.  
-- Identifies documents containing each term independently.  
-- Groups results into a dictionary where each query term maps to a list of document IDs containing that term.  
+- Analyzes the hierarchical organization of content (e.g., sections, subsections).  
+- Scores documents based on the proximity of query terms and their structural relationships.  
+- Enhances relevance by considering both content and context.  
 
 **Implementation Workflow:**  
-1. Tokenize the search query into terms.  
-2. Search each term within the document content.  
-3. Return a mapping of query terms to document IDs for precise result segregation.  
+1. Parse the document structure to create a hierarchical representation.  
+2. Identify sections containing query terms and calculate proximity scores.  
+3. Rank documents based on structural relevance.  
 
 ---
 
-### **3. Proximal Nodes Model**  
-The Proximal Nodes Model uses a predefined graph structure to identify related terms and locate documents based on the relationships between words.  
+### Search Results  
 
-**Key Features:**  
-- Incorporates a graph structure that maps terms to their semantically related terms.  
-- Matches documents containing either the query term or its related terms from the graph.  
-- Enhances the retrieval process by considering semantic proximity rather than exact matches.  
-
-**Implementation Workflow:**  
-1. Retrieve related terms for the query term from the graph.  
-2. Search for the query term and related terms across all documents.  
-3. Return a dictionary of relevant document IDs and their content.  
-
-### File Uploading:
-
-- Users can upload `.txt` files. These documents are saved in the `documents/` directory.
-- Uploaded files are processed immediately to extract their content, which is stored in the `documents` dictionary.
-
-### Document Indexing:
-
-- The app uses the **TF-IDF model** to index documents by content.
-- Stop words are removed from the indexing process to ensure only meaningful terms are indexed.
-- Cosine similarity is used to rank documents based on the relevance of the search query.
-
-### Search Functionality:
-
-- Users can search for keywords or phrases within document content or filenames.
-- The search results are ranked by relevance, with the most relevant results displayed first.
-
-
-### **Search Results**  
-
-- Results are ranked by relevance based on the search model applied.  
-- For models like BIM, results are sorted by overlap scores, with higher scores indicating better matches.  
-- Non-Overlapped Lists and Proximal Nodes return well-organized lists or mappings of documents to ensure clear and relevant results.  
+- **Hypertext-Based Search**: Results are ranked by graph-based metrics (e.g., connectivity, relevance).  
+- **Structure Guided Model**: Results are ranked by structural proximity and context relevance.  
 
 ---
 
 ## Example Use Case  
 
-1. **Uploading Documents:**  
-   A user uploads a collection of `.txt` files containing textual content. These documents are indexed and stored in the system.  
 
-2. **Performing a Search:**  
-   The user enters a query and selects the desired search model (BIM, Non-Overlapped Lists, or Proximal Nodes).  
 
-3. **Retrieving Results:**  
-   The system processes the query using the chosen model and displays ranked results with filenames and content snippets.  
+* **Performing a Search:**  
+   Users enter a query, and the system applies either hypertext-based or structure-guided retrieval.  
+
+*3.* **Retrieving Results:**  
+   The system returns ranked results, including context snippets and links to related content.  
 
 ---
 
@@ -279,13 +243,6 @@ INSTALLED_APPS = [
 ]
 ```
 
-#### Global Variables
-
-```python
-# Initialize indexes when the server starts
-INDEX, TITLE_INDEX, DOCUMENTS = build_index()
-```
-
 #### Document Reading
 
 The read_documents function reads and processes all text files in a specified upload directory and stores their content in a global dictionary for indexing and search operations.
@@ -303,155 +260,9 @@ Example:
 
 ### Working
 
-#### Build Index
-
-```py
-def build_index():
-    """
-    Build indexes for quick searching.
-    - `index`: Maps words to the documents they appear in.
-    - `title_index`: Maps document titles to their full content.
-    - `documents`: Stores the complete content of all documents.
-    """
-    index = defaultdict(list)
-    title_index = {}
-    documents = {}
-
-    # Loop through files in the DOCUMENTS_DIR
-    for filename in os.listdir(DOCUMENTS_DIR):
-        file_path = os.path.join(DOCUMENTS_DIR, filename)
-        if os.path.isfile(file_path) and filename.endswith('.txt'):
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-                title_index[filename] = content
-                documents[filename] = content
-                # Tokenize and index each word
-                words = content.split()
-                for word in words:
-                    index[word.lower()].append(filename)
-    return index, title_index, documents
-```
-
 #### Search  By Proximal Nodes
 
-```py
-def retrieve_proximal_nodes_from_graph(query, graph, documents):
-    """
-    Retrieve documents based on proximal nodes from a predefined graph.
 
-    Parameters:
-        - query_word: The word input by the user.
-        - graph: A dictionary mapping words to their related words.
-        - documents: A dictionary of document IDs and their content.
-
-    Returns:
-        - A dictionary of relevant document IDs and their content.
-    """
-    # Preprocess query to extract related words
-    query = query.lower()
-    related_words = set(graph.get(query, []))  # Get related words from the graph
-    related_words.add(query)  # Include the query itself in related words
-
-    # Dictionary to store document scores
-    doc_scores = {doc_id: 0 for doc_id in documents}
-
-    # Search documents containing any of the related words and calculate scores
-    for word in related_words:
-        for doc_id, content in documents.items():
-            if word in content.lower():  # Case-insensitive matching
-                doc_scores[doc_id] += 1  # Increment score for each match
-
-    # Sort documents by score in descending order
-    ranked_docs = sorted(doc_scores.items(), key=lambda item: item[1], reverse=True)
-
-    # Filter out documents with a score of 0 and return only their IDs
-    return [doc_id for doc_id, score in ranked_docs if score > 0]
-
-```
-
-#### Search  By non Overlapping lists
-
-```py
-def non_overlapped_lists(documents, query_terms):
-    """
-    Non-Overlapped List Model for Information Retrieval.
-    
-    Args:
-        documents (dict): A dictionary where keys are document IDs and values are document content.
-        query_terms (list): A list of terms to search for in the documents.
-
-    Returns:
-        dict: A dictionary where keys are terms and values are lists of document IDs containing that term.
-    """
-    # Preprocess query terms (case-insensitive matching)
-    query_terms = [term.lower() for term in query_terms]
-    
-    # Dictionary to store results for each query term
-    results = {term: [] for term in query_terms}
-
-    # Search documents for each query term
-    for term in query_terms:
-        for doc_id, content in documents.items():
-            if term in content.lower():  # Case-insensitive matching
-                results[term].append(doc_id)
-
-    # Combine all document lists into a non-overlapping set
-    combined_docs = set()
-    for doc_list in results.values():
-        combined_docs.update(doc_list)
-
-    # Rank combined documents by frequency of matching terms
-    doc_scores = {doc_id: 0 for doc_id in combined_docs}
-    for term, doc_list in results.items():
-        for doc_id in doc_list:
-            doc_scores[doc_id] += 1  # Increment score for each term match
-
-    # Sort documents by score in descending order
-    ranked_docs = sorted(doc_scores.items(), key=lambda item: item[1], reverse=True)
-
-    val =  {"term_results": results, "ranked_documents": [doc_id for doc_id, _ in ranked_docs]}
-    print(val)
-    return val
-```
-
-#### Search By Binary Independence Model 
-
-```py
-# Binary Independence Model implementation
-def calculate_bim(documents, query):
-    """
-    Binary Independence Model for information retrieval.
-
-    Args:
-        documents (dict): A dictionary where keys are document IDs and values are the text of the documents.
-        query (str): The search query.
-
-    Returns:
-        list: Ranked list of document IDs based on relevance scores.
-    """
-    print(documents)
-    # Preprocess the documents and query
-    def preprocess(text):
-        # Simple preprocessing: convert to lowercase, split into words, remove duplicates
-        return set(text.lower().split())
-
-    processed_documents = {doc_id: preprocess(content) for doc_id, content in documents.items()}
-    processed_query = preprocess(query)
-
-    # Calculate scores for each document
-    scores = {}
-    for doc_id, words in processed_documents.items():
-        # Count matching words
-        matching_words = processed_query.intersection(words)
-        scores[doc_id] = len(matching_words)  # Score based on count of matching words
-
-    # Filter documents with a score of zero
-    zero_score_docs = [doc_id for doc_id, score in scores.items() if score == 1]
-
-    return zero_score_docs
-```
-
-#### Upload File
 ```python
 @csrf_exempt
 def upload_file_view(request):
@@ -488,54 +299,59 @@ def upload_file_view(request):
 
 #### Explanation
 
-**Overview**
-This DFD depicts a system designed for managing and retrieving documents. It illustrates how users interact with the system to upload, store, and search for documents.
+# Components
 
-**Components**
+### User
+Represents the end-user who interacts with the system.
 
-* **Search By Title/Content:** Process that takes user-provided parameters (search query) and searches the Document Directory for matching documents.
-* **Save Document:** Process that saves the document in the Document Directory.
-* **Search using Keyword Matching:** Process that employs keyword matching to find documents containing the search query.
-* **Display Results:** Process that displays search results to the user.
+### Hypertext Model
+The core of the system, responsible for handling user interactions and retrieving data.
 
-**Data Flows**
+### Data From Server
+Represents the data fetched from the server in response to user actions.
 
-* **Select File:** User selects a file for upload.
-* **Parameters:** User provides parameters (search query) to the search process.
-* **Search Query:** Search query is passed to the search process.
-* **Response:** Search results are displayed to the user.
-* **Store Document:** Uploaded document is stored in the Document Directory.
+### Server
+The backend server that provides the data.
 
-**Functionality**
+### Open Web App
+Represents the web application that is opened in response to user actions.
 
-1. **Document Upload:** User selects a file for upload. The system receives the file and stores it in the Document Directory.
-2. **Document Search:** User provides a search query (by title or content). The system searches the Document Directory using keyword matching to find documents containing the search query.
-3. **Display Results:** System displays the search results to the user, highlighting the matching lines in the document content.
+### Update UI
+Represents the process of updating the user interface based on user actions or data received from the server.
 
+---
 
-**Components**:
+# Data Flows
 
-* User: Represents the end-user who interacts with the system.
-* Upload Document: This process receives documents from the user and stores them in the Document Directory.
-* Document Directory: This is where uploaded documents are stored.
-* Search By Content: This process takes parameters (search query) from the user and searches the Document Directory for matching documents.
-* Save Document: This process saves the document in the Document Directory.
-* Binary Independence Model: Searches based on probability, independent of other documents.
-* Proximal Node Model: Searches through interconnected nodes.
-* Non-Overlapping Model: Searches through clusters.
+## User Interaction
 
-**Data Flows**:
-* Select File: The user selects a file to upload.
-* Parameters: The user provides parameters (search query) to the search process.
-* Search Query: The search query is passed to the search process.
-* Response: The search results are displayed to the user.
-* Store Document: The uploaded document is stored in the Document Directory.
+1. **Click on Hyperlink**  
+   The user clicks on a hyperlink within the web application.
 
-**Functionality**:
-* Document Upload: The user selects a file to upload. The system receives the file and stores it in the Document Directory.
-* Document Search: The user provides a search query. The system searches the Document Directory using different models (Binary Independence, Proximal Node, and Non-Overlapping) to rank the matching documents.
-* Display Results: The system displays the ranked search results to the user.
+2. **Move to a Different Section**  
+   The user navigates to a different section of the web application.
+
+---
+
+## System Processing
+
+1. **Get Data From Server**  
+   The system sends a request to the server to fetch the necessary data for the requested action.
+
+2. **Update UI**  
+   The system updates the user interface to display the retrieved data or to navigate to the requested section.
+
+---
+
+# Overall Functionality
+
+1. The user interacts with the web application by clicking on hyperlinks or navigating to different sections.
+2. The system processes the user's action and sends a request to the server for the required data.
+3. The server processes the request and sends the requested data back to the system.
+4. The system updates the user interface with the retrieved data or navigates the user to the requested section.
+
 
 ## Future Enhancements
 
 In the future, we plan to enhance the document search engine by supporting various document formats beyond plain text files. This includes adding support for PDF, Word, and Excel documents, allowing users to upload and search within these file types. Additionally, we aim to improve the search algorithms to provide more accurate and relevant results, and to integrate advanced features such as natural language processing and semantic search capabilities. These enhancements will make the search engine more versatile and powerful, catering to a wider range of user needs and document types.
+
