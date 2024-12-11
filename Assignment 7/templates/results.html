@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="results-container">
+    <h2>Results for Query: "{{ query }}"</h2>
+    <p>Model Used: <strong>{{ model }}</strong></p>
+    <table>
+        <thead>
+            <tr>
+                <th>Document</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doc, score in results %}
+            <tr>
+                <td>{{ doc }}</td>
+                <td>{{ score }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('query') }}" class="btn-try-again">Try Another Query</a>
+</div>
+{% endblock %}
