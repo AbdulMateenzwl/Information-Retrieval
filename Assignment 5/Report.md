@@ -306,149 +306,50 @@ Example:
 #### Build Index
 
 ```py
-def build_index():
+# Function to perform Boolean Extended search
+def boolean_extended_search(query, documents):
     """
-    Build indexes for quick searching.
-    - `index`: Maps words to the documents they appear in.
-    - `title_index`: Maps document titles to their full content.
-    - `documents`: Stores the complete content of all documents.
+    Perform Boolean Extended search with AND, OR, NOT operations.
+    Returns a list of tuples where each tuple contains a document and its relevance score.
     """
-    index = defaultdict(list)
-    title_index = {}
-    documents = {}
 
-    # Loop through files in the DOCUMENTS_DIR
-    for filename in os.listdir(DOCUMENTS_DIR):
-        file_path = os.path.join(DOCUMENTS_DIR, filename)
-        if os.path.isfile(file_path) and filename.endswith('.txt'):
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-                title_index[filename] = content
-                documents[filename] = content
-                # Tokenize and index each word
-                words = content.split()
-                for word in words:
-                    index[word.lower()].append(filename)
-    return index, title_index, documents
-```
-
-#### Search  By Proximal Nodes
-
-```py
-def retrieve_proximal_nodes_from_graph(query, graph, documents):
-    """
-    Retrieve documents based on proximal nodes from a predefined graph.
-
-    Parameters:
-        - query_word: The word input by the user.
-        - graph: A dictionary mapping words to their related words.
-        - documents: A dictionary of document IDs and their content.
-
-    Returns:
-        - A dictionary of relevant document IDs and their content.
-    """
-    # Preprocess query to extract related words
-    query = query.lower()
-    related_words = set(graph.get(query, []))  # Get related words from the graph
-    related_words.add(query)  # Include the query itself in related words
-
-    # Dictionary to store document scores
-    doc_scores = {doc_id: 0 for doc_id in documents}
-
-    # Search documents containing any of the related words and calculate scores
-    for word in related_words:
-        for doc_id, content in documents.items():
-            if word in content.lower():  # Case-insensitive matching
-                doc_scores[doc_id] += 1  # Increment score for each match
-
-    # Sort documents by score in descending order
-    ranked_docs = sorted(doc_scores.items(), key=lambda item: item[1], reverse=True)
-
-    # Filter out documents with a score of 0 and return only their IDs
-    return [doc_id for doc_id, score in ranked_docs if score > 0]
-
-```
-
-#### Search  By non Overlapping lists
-
-```py
-def non_overlapped_lists(documents, query_terms):
-    """
-    Non-Overlapped List Model for Information Retrieval.
+    # Convert the query into a list of terms and operators
+    query = parse_boolean_query(query)
     
-    Args:
-        documents (dict): A dictionary where keys are document IDs and values are document content.
-        query_terms (list): A list of terms to search for in the documents.
-
-    Returns:
-        dict: A dictionary where keys are terms and values are lists of document IDs containing that term.
-    """
-    # Preprocess query terms (case-insensitive matching)
-    query_terms = [term.lower() for term in query_terms]
+    results = []  # Initialize a list to store results along with relevance scores
     
-    # Dictionary to store results for each query term
-    results = {term: [] for term in query_terms}
+     # Iterate through each document in the dataset
+    for doc in documents:
+        doc_terms = doc.lower().split()   # Convert the document to lowercase and split into individual words (terms)
+        doc_terms_set = set(doc_terms)  # Convert terms to a set for quick lookup
+        score = 0  # Initialize the relevance score
+        
+        # Process the query terms and operators
+        terms = query.split()  # Split query into individual terms/operators
 
-    # Search documents for each query term
-    for term in query_terms:
-        for doc_id, content in documents.items():
-            if term in content.lower():  # Case-insensitive matching
-                results[term].append(doc_id)
+        for term in terms:  
+            if '&' in term:  # Check if the term involves an AND operation
+                term1, term2 = term.split('&') # Split terms involved in AND
+                if term1 in doc_terms_set and term2 in doc_terms_set:
+                    score += 1  # Increment score if both terms are found
+            elif '|' in term:  # Check if the term involves an OR operation
+                term1, term2 = term.split('|') # Split terms involved in OR
+                if term1 in doc_terms_set or term2 in doc_terms_set:
+                    score += 1 # Increment score if either term is found
+            elif '!' in term:  # Check if the term involves a NOT operation
+                term1 = term[1:]  # Remove the '!' to get the term
+                if term1 not in doc_terms_set:
+                    score += 1  # Increment score if the term is NOT in the document
+            else:  # Single term (assume it is ANDed with the rest)
+                if term in doc_terms_set:
+                    score += 1 # Increment score if the term is found
 
-    # Combine all document lists into a non-overlapping set
-    combined_docs = set()
-    for doc_list in results.values():
-        combined_docs.update(doc_list)
+        # Store documents with their score
+        results.append((doc, score))
 
-    # Rank combined documents by frequency of matching terms
-    doc_scores = {doc_id: 0 for doc_id in combined_docs}
-    for term, doc_list in results.items():
-        for doc_id in doc_list:
-            doc_scores[doc_id] += 1  # Increment score for each term match
-
-    # Sort documents by score in descending order
-    ranked_docs = sorted(doc_scores.items(), key=lambda item: item[1], reverse=True)
-
-    val =  {"term_results": results, "ranked_documents": [doc_id for doc_id, _ in ranked_docs]}
-    print(val)
-    return val
-```
-
-#### Search By Binary Independence Model 
-
-```py
-# Binary Independence Model implementation
-def calculate_bim(documents, query):
-    """
-    Binary Independence Model for information retrieval.
-
-    Args:
-        documents (dict): A dictionary where keys are document IDs and values are the text of the documents.
-        query (str): The search query.
-
-    Returns:
-        list: Ranked list of document IDs based on relevance scores.
-    """
-    print(documents)
-    # Preprocess the documents and query
-    def preprocess(text):
-        # Simple preprocessing: convert to lowercase, split into words, remove duplicates
-        return set(text.lower().split())
-
-    processed_documents = {doc_id: preprocess(content) for doc_id, content in documents.items()}
-    processed_query = preprocess(query)
-
-    # Calculate scores for each document
-    scores = {}
-    for doc_id, words in processed_documents.items():
-        # Count matching words
-        matching_words = processed_query.intersection(words)
-        scores[doc_id] = len(matching_words)  # Score based on count of matching words
-
-    # Filter documents with a score of zero
-    zero_score_docs = [doc_id for doc_id, score in scores.items() if score == 1]
-
-    return zero_score_docs
+    # Sort results in descending order based on score (higher score means more relevant)
+    results.sort(key=lambda x: x[1], reverse=True)
+    return results
 ```
 
 #### Upload File
@@ -485,56 +386,67 @@ def upload_file_view(request):
 ## DFD
 
 ![img](./DFD.jpg)
+![img](./DFD2.jpg)
 
 #### Explanation
 
-**Overview**
-This DFD depicts a system designed for managing and retrieving documents. It illustrates how users interact with the system to upload, store, and search for documents.
+**Overview**  
+This diagram illustrates the process of a Boolean Information Retrieval System. The system takes a query and a set of documents and returns a ranked list of documents relevant to the query based on Boolean operators (AND, OR, NOT).
 
-**Components**
+**Steps**  
 
-* **Search By Title/Content:** Process that takes user-provided parameters (search query) and searches the Document Directory for matching documents.
-* **Save Document:** Process that saves the document in the Document Directory.
-* **Search using Keyword Matching:** Process that employs keyword matching to find documents containing the search query.
-* **Display Results:** Process that displays search results to the user.
+1. **Input Query and Documents:**  
+   The system receives a query in the form of a Boolean expression and a set of documents.
 
-**Data Flows**
+2. **Parse Query into Terms and Operators:**  
+   The query is parsed into individual terms and Boolean operators (AND, OR, NOT) that connect them.
 
-* **Select File:** User selects a file for upload.
-* **Parameters:** User provides parameters (search query) to the search process.
-* **Search Query:** Search query is passed to the search process.
-* **Response:** Search results are displayed to the user.
-* **Store Document:** Uploaded document is stored in the Document Directory.
+3. **Initialize Results List:**  
+   An empty list is initialized to store the relevant documents and their corresponding scores.
 
-**Functionality**
+4. **Iterate Over Each Document:**  
+   The system iterates through each document in the collection.
 
-1. **Document Upload:** User selects a file for upload. The system receives the file and stores it in the Document Directory.
-2. **Document Search:** User provides a search query (by title or content). The system searches the Document Directory using keyword matching to find documents containing the search query.
-3. **Display Results:** System displays the search results to the user, highlighting the matching lines in the document content.
+5. **Convert Document to Lowercase and Split into Terms:**  
+   Each document is converted to lowercase and split into individual terms.
 
+6. **Convert Document Terms to a Set:**  
+   The document terms are converted into a set to improve efficiency in subsequent operations.
 
-**Components**:
+7. **Initialize Relevance Score to 0:**  
+   A relevance score is initialized to 0 for the current document.
 
-* User: Represents the end-user who interacts with the system.
-* Upload Document: This process receives documents from the user and stores them in the Document Directory.
-* Document Directory: This is where uploaded documents are stored.
-* Search By Content: This process takes parameters (search query) from the user and searches the Document Directory for matching documents.
-* Save Document: This process saves the document in the Document Directory.
-* Binary Independence Model: Searches based on probability, independent of other documents.
-* Proximal Node Model: Searches through interconnected nodes.
-* Non-Overlapping Model: Searches through clusters.
+8. **Process Each Query Term and Operator:**  
+   The system processes each term and operator in the query:  
+   * **AND:** Both terms must be present in the document's terms.  
+   * **OR:** At least one of the terms must be present in the document's terms.  
+   * **NOT:** The term must not be present in the document's terms.  
+   * **Single Term:** The term is checked for presence in the document's terms.  
 
-**Data Flows**:
-* Select File: The user selects a file to upload.
-* Parameters: The user provides parameters (search query) to the search process.
-* Search Query: The search query is passed to the search process.
-* Response: The search results are displayed to the user.
-* Store Document: The uploaded document is stored in the Document Directory.
+9. **Increment Score:**  
+   If a term or combination of terms matches the document, the relevance score is incremented.
 
-**Functionality**:
-* Document Upload: The user selects a file to upload. The system receives the file and stores it in the Document Directory.
-* Document Search: The user provides a search query. The system searches the Document Directory using different models (Binary Independence, Proximal Node, and Non-Overlapping) to rank the matching documents.
-* Display Results: The system displays the ranked search results to the user.
+10. **Store Document with its Score:**  
+    The document and its calculated score are stored in the results list.
+
+11. **Sort Results by Score in Descending Order:**  
+    The results list is sorted in descending order based on the relevance scores.
+
+12. **Return Sorted Results:**  
+    The sorted list of relevant documents is returned as the system's output.
+
+**Components**  
+* **User:** The person interacting with the system to input a query and view results.  
+* **Query Parser:** Parses the Boolean expression into terms and operators.  
+* **Document Collection:** A set of documents against which the query is matched.  
+* **Relevance Scorer:** Evaluates and calculates relevance scores for documents based on the query.  
+* **Results Manager:** Stores and sorts the results to display to the user.  
+
+**Data Flows**  
+* **Query Input:** The query provided by the user is sent to the Query Parser.  
+* **Documents:** The collection of documents is sent to the Relevance Scorer.  
+* **Relevance Scores:** Calculated scores are passed to the Results Manager.  
+* **Sorted Results:** The final ranked list is returned to the user.
 
 ## Future Enhancements
 

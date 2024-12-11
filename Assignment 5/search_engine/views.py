@@ -37,7 +37,7 @@ def search_view(request):
         model = request.POST.get('model', 'vector')  # Default to vector model
 
         if model == 'boolean':
-            results = boolean_search(query, DOCUMENTS)
+            results = boolean_extended_search(query, DOCUMENTS)
         elif model == 'fuzzy':
             # threshold = float(request.POST.get())  # Optional threshold parameter
             results = fuzzy_search(query, DOCUMENTS)
@@ -110,38 +110,62 @@ def fuzzy_search(query, documents,threshold=0.5 ):
     print(results)
     return sorted(results, key=lambda x: x[1], reverse=True)
 
-def boolean_search(query, documents):
+# Simple function to parse Boolean queries
+def parse_boolean_query(query):
     """
-    Perform Boolean search on a collection of documents.
-    Args:
-        query (str): Boolean query (e.g., "term1 AND term2 OR NOT term3").
-        documents (dict): Document collection where keys are document IDs and values are document content.
-
-    Returns:
-        list: List of matching document IDs.
+    Parse a Boolean query with AND, OR, NOT operations.
+    Converts user-friendly logical operators (AND, OR, NOT) into Python equivalents (&, |, !).
+    This simplifies further processing.
     """
-    def evaluate_boolean_expression(expression, terms):
-        import re
-        # Replace logical operators with Python equivalents
-        expression = re.sub(r"\bAND\b", "and", expression)
-        expression = re.sub(r"\bOR\b", "or", expression)
-        expression = re.sub(r"\bNOT (\w+)", r"'\\1' not in terms", expression)
-        expression = re.sub(r"(\w+)", r"'\\1' in terms", expression)
 
-        print(f"Transformed Expression: {expression}")  # Debug print
+    # Convert the query to lowercase and replace operators with their Python equivalents
+    query = query.lower().replace("and", "&").replace("or", "|").replace("not", "!")
+    return query
 
-        try:
-            return eval(expression)
-        except Exception as e:
-            raise ValueError(f"Invalid Boolean query: {expression}. Error: {e}")
+# Function to perform Boolean Extended search
+def boolean_extended_search(query, documents):
+    """
+    Perform Boolean Extended search with AND, OR, NOT operations.
+    Returns a list of tuples where each tuple contains a document and its relevance score.
+    """
 
-    results = []
-    for doc_id, content in documents.items():
-        terms = set(content.split())  # Split document content into a set of terms
-        if evaluate_boolean_expression(query, terms):
-            results.append(doc_id)
+    # Convert the query into a list of terms and operators
+    query = parse_boolean_query(query)
+    
+    results = []  # Initialize a list to store results along with relevance scores
+    
+     # Iterate through each document in the dataset
+    for doc in documents:
+        doc_terms = doc.lower().split()   # Convert the document to lowercase and split into individual words (terms)
+        doc_terms_set = set(doc_terms)  # Convert terms to a set for quick lookup
+        score = 0  # Initialize the relevance score
+        
+        # Process the query terms and operators
+        terms = query.split()  # Split query into individual terms/operators
+
+        for term in terms:  
+            if '&' in term:  # Check if the term involves an AND operation
+                term1, term2 = term.split('&') # Split terms involved in AND
+                if term1 in doc_terms_set and term2 in doc_terms_set:
+                    score += 1  # Increment score if both terms are found
+            elif '|' in term:  # Check if the term involves an OR operation
+                term1, term2 = term.split('|') # Split terms involved in OR
+                if term1 in doc_terms_set or term2 in doc_terms_set:
+                    score += 1 # Increment score if either term is found
+            elif '!' in term:  # Check if the term involves a NOT operation
+                term1 = term[1:]  # Remove the '!' to get the term
+                if term1 not in doc_terms_set:
+                    score += 1  # Increment score if the term is NOT in the document
+            else:  # Single term (assume it is ANDed with the rest)
+                if term in doc_terms_set:
+                    score += 1 # Increment score if the term is found
+
+        # Store documents with their score
+        results.append((doc, score))
+
+    # Sort results in descending order based on score (higher score means more relevant)
+    results.sort(key=lambda x: x[1], reverse=True)
     return results
-
 
 def update_index(file_path, filename):
     """
@@ -184,14 +208,3 @@ def upload_file_view(request):
 
     # Respond with an error for invalid requests
     return JsonResponse({'success': False, 'message': 'Invalid request.'})
-
-
-documents = {
-    "doc1": "machine learning artificial intelligence",
-    "doc2": "deep learning neural networks",
-    "doc3": "artificial intelligence neural networks",
-}
-
-
-print(boolean_search(" artificial AND intelligence OR NOT deep ", documents))
- 

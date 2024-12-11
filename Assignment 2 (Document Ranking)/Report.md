@@ -261,6 +261,8 @@ IDF Values:
 ## DFD
 
 ![img](./DFD.jpg)
+![img](./DFD2.jpg)
+
 
 #### Explanation
 
