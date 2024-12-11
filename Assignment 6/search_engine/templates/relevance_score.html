@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relevance Score Calculator</title>
+    <style>
+        /* General Reset */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        /* Center the content */
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        /* Heading Style */
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        h2 {
+            color: #333;
+            margin-top: 20px;
+            font-size: 1.5em;
+        }
+
+        /* Form Styling */
+        form {
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.1em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Relevance Score Display */
+        .result {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .container {
+                margin: 20px;
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            h2 {
+                font-size: 1.2em;
+            }
+
+            button {
+                padding: 10px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+
+<body class="container">
+    <h1>Relevance Score Calculator</h1>
+    <form method="POST" action="">
+        {% csrf_token %}
+        <label for="X1">X1:</label>
+        <input type="number" id="X1" name="X1" step="0.01" value="{{ default_values.X1 }}" required><br>
+
+        <label for="X2">X2:</label>
+        <input type="number" id="X2" name="X2" step="0.01" value="{{ default_values.X2 }}" required><br>
+
+        <label for="W_input1">W_input1:</label>
+        <input type="number" id="W_input1" name="W_input1" step="0.01" value="{{ default_values.W_input1 }}"
+            required><br>
+
+        <label for="W_input2">W_input2:</label>
+        <input type="number" id="W_input2" name="W_input2" step="0.01" value="{{ default_values.W_input2 }}"
+            required><br>
+
+        <label for="B_input">B_input:</label>
+        <input type="number" id="B_input" name="B_input" step="0.01" value="{{ default_values.B_input }}" required><br>
+
+        <label for="W_output">W_output:</label>
+        <input type="number" id="W_output" name="W_output" step="0.01" value="{{ default_values.W_output }}"
+            required><br>
+
+        <label for="B_output">B_output:</label>
+        <input type="number" id="B_output" name="B_output" step="0.01" value="{{ default_values.B_output }}"
+            required><br>
+
+        <button type="submit">Calculate Relevance Score</button>
+    </form>
+
+    {% if relevance_score is not none %}
+    <h2>Relevance Score: {{ relevance_score }}</h2>
+    {% endif %}
+</body>
+
+</html>
